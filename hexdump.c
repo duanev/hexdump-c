@@ -43,13 +43,13 @@ hexdump(char * buf, int count, unsigned long addr)
 #include <unistd.h>
 
 void
-dumpfile(int fd)
+dumpfile(FILE * fp)
 {
 	unsigned long	addr = 0;
 	char		buf[16];
 	int		n;
 
-	while ((n = read(fd, buf, sizeof(buf))) > 0) {
+	while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) {
 		hexdump(buf, n, addr);
 		addr += n;
 	}
@@ -61,17 +61,17 @@ dumpfile(int fd)
 int
 main(int ac, char * av[])
 {
-	int	fd;
+	FILE *	fp;
 	int	i;
 
 	if (ac > 1) {
 		for (i = 1; i < ac; i++) {
-			fd = open(av[i], O_RDONLY);
-			dumpfile(fd);
-			close(fd);
+			fp = fopen(av[i], "r");
+			dumpfile(fp);
+			fclose(fp);
 		}
 	} else {
-		dumpfile(0);
+		dumpfile(stdin);
 	}
 
 	return 0;
